@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 
 
 // El git mostra un altre compte perque la han posat a ajustos globals i sobre-escriu la meva a Visual Studio.
+// fixed? test push
 public class CanonRotation : MonoBehaviour, InputSystem_Actions.IPlayerActions
 {
     public Vector3 _maxRotation;
