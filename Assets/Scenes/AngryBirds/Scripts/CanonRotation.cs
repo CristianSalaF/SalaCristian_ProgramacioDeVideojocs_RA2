@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+
+// El git mostra un altre compte perque la han posat a ajustos globals i sobre-escriu la meva a Visual Studio.
 public class CanonRotation : MonoBehaviour, InputSystem_Actions.IPlayerActions
 {
     public Vector3 _maxRotation;
@@ -43,11 +45,12 @@ public class CanonRotation : MonoBehaviour, InputSystem_Actions.IPlayerActions
         // Vector2 mousePos; //obtenir el valor del click del cursor (Fer amb new input system)
         _distanceBetweenMouseAndPlayer = mousePos - new Vector2(this.transform.position.x, this.transform.position.y); //obtenir el vector distància entre el canó i el cursor
         var ang = (Mathf.Atan2(_distanceBetweenMouseAndPlayer.y, _distanceBetweenMouseAndPlayer.x) * 180f / Mathf.PI + _offset);
-        transform.rotation = Quaternion.Euler(0,0,ang); //en quin dels tres eixos va l'angle? al Z, que es el que va del davant cap al fons
+        transform.rotation = Quaternion.Euler(0,0, Mathf.Clamp(ang, -51.6f, 38.4f)); //en quin dels tres eixos va l'angle? al Z, que es el que va del davant cap al fons
 
         if (isRaising)
         {
             ProjectileSpeed = Time.deltaTime * _multiplier + ProjectileSpeed; //acotar entre dos valors (mirar variables)
+            ProjectileSpeed = Mathf.Clamp(ProjectileSpeed, MinSpeed, MaxSpeed);
             CalculateBarScale();
         }
         
@@ -68,7 +71,9 @@ public class CanonRotation : MonoBehaviour, InputSystem_Actions.IPlayerActions
         if (context.canceled)
         {
             var projectile = Instantiate(Bullet, transform.position, Quaternion.identity); //canviar la posició on s'instancia
-            projectile.GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
+            projectile.GetComponent<Rigidbody2D>().linearVelocity = (mousePos - new Vector2(this.transform.position.x, this.transform.position.y)) * ProjectileSpeed;
+            Debug.Log("Projectile speed: " + ProjectileSpeed);
+            Debug.Log("Linear X: " + projectile.GetComponent<Rigidbody2D>().linearVelocity.x + " linearY: " + projectile.GetComponent<Rigidbody2D>().linearVelocity.y);
             ProjectileSpeed = 0f;
             isRaising = false;
         }
@@ -81,7 +86,7 @@ public class CanonRotation : MonoBehaviour, InputSystem_Actions.IPlayerActions
 
     public void OnLook(InputAction.CallbackContext context)
     {
-        Debug.Log("Mouse pos X: " + mousePos.x + " mouse Y is: " + mousePos.y);
+        //Debug.Log("Mouse pos X: " + mousePos.x + " mouse Y is: " + mousePos.y);
         mousePos = Camera.main.ScreenToWorldPoint(context.ReadValue<Vector2>());
     }
 
